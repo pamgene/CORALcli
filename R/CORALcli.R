@@ -797,11 +797,12 @@ xmlns:xlink=\"http://www.w3.org/1999/xlink\" >\n"
 #' @param df
 #' @param min_col
 #' @param max_col
+#' @param fscore_thr Threshold for Median Final score
 #'
 #' @return list of coral tree and legend
 #' @import dplyr
 #' @export
-make_tree_data <- function(df, min_col, max_col) {
+make_tree_data <- function(df, min_col, max_col, fscore_thr = 1.3) {
  require(dplyr)
  empty_tree <- make_empty_tree()
  tempdf <- empty_tree$dataframe
@@ -811,7 +812,7 @@ make_tree_data <- function(df, min_col, max_col) {
 
  kinaseData <- df
  # Threshold final score
- kinaseData <- kinaseData %>% filter(`Median Final score` > 1.3)
+ kinaseData <- kinaseData %>% filter(`Median Final score` > fscore_thr)
  kinaseNodeSize <- kinaseData %>% select(`Kinase Uniprot ID`, `Median Final score`) %>% as.data.frame(.)
  kinaseNodeColor <- kinaseData %>% select(`Kinase Uniprot ID`, `Median Kinase Statistic`) %>% as.data.frame(.)
 
@@ -900,18 +901,19 @@ make_tree_data <- function(df, min_col, max_col) {
 #' @param tree_dir
 #' @param min_col
 #' @param max_col
+#' @param fscore_thr Threshold for Median Final score
 #' @param png
 #'
 #' @return saved file location
 #' @import magick rsvg stringr
 #' @export
-plot_tree <- function(df, comparison, tree_dir, min_col, max_col, png=FALSE) {
+plot_tree <- function(df, comparison, tree_dir, min_col, max_col, fscore_thr = 1.3, png=FALSE) {
  require(magick)
  require(rsvg)
  require(stringr)
 
  new_tree <- make_empty_tree()
- dfandlegend <- make_tree_data(df, min_col = min_col, max_col = max_col)
+ dfandlegend <- make_tree_data(df, min_col = min_col, max_col = max_col, fscore_thr = fscore_thr)
  new_tree$dataframe <- dfandlegend[[1]]
  new_tree$legend <- dfandlegend[[2]]
 

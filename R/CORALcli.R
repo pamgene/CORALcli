@@ -797,12 +797,13 @@ xmlns:xlink=\"http://www.w3.org/1999/xlink\" >\n"
 #' @param df
 #' @param min_col
 #' @param max_col
-#' @param fscore_thr Threshold for Median Final score
+#' @param fscore_col
+#' @param kinstat_col
 #'
 #' @return list of coral tree and legend
 #' @import dplyr
 #' @export
-make_tree_data <- function(df, min_col, max_col, fscore_thr = 1.3) {
+make_tree_data <- function(df, min_col, max_col, fscore_col, kinstat_col) {
  require(dplyr)
  empty_tree <- make_empty_tree()
  tempdf <- empty_tree$dataframe
@@ -811,10 +812,8 @@ make_tree_data <- function(df, min_col, max_col, fscore_thr = 1.3) {
  yoffset <- 79.125
 
  kinaseData <- df
- # Threshold final score
- kinaseData <- kinaseData %>% filter(`Median Final score` > fscore_thr)
- kinaseNodeSize <- kinaseData %>% select(`Kinase Uniprot ID`, `Median Final score`) %>% as.data.frame(.)
- kinaseNodeColor <- kinaseData %>% select(`Kinase Uniprot ID`, `Median Kinase Statistic`) %>% as.data.frame(.)
+ kinaseNodeSize <- kinaseData %>% select(`Kinase Uniprot ID`, !!sym(fscore_col)) %>% as.data.frame(.)
+ kinaseNodeColor <- kinaseData %>% select(`Kinase Uniprot ID`, !!sym(kinstat_col)) %>% as.data.frame(.)
 
  # ---------------- BRANCH & NODE COLOR ---------------- #
  recolordf <- kinaseNodeColor
@@ -848,7 +847,7 @@ make_tree_data <- function(df, min_col, max_col, fscore_thr = 1.3) {
  resizedf <- convertID(tempdf, resizedf, inputtype = "uniprot")
 
  min_node_size <- 1
- max_med_final_score <- max(kinaseNodeSize$`Median Final score`)
+ max_med_final_score <- max(kinaseNodeSize[[fscore_col]], na.rm = TRUE)
  max_node_size <- ceiling(max_med_final_score / 0.5) * 0.5
 
  minvalforlegend <- min_node_size
@@ -901,19 +900,20 @@ make_tree_data <- function(df, min_col, max_col, fscore_thr = 1.3) {
 #' @param tree_dir
 #' @param min_col
 #' @param max_col
-#' @param fscore_thr Threshold for Median Final score
+#' @param fscore_col
+#' @param kinstat_col
 #' @param png
 #'
 #' @return saved file location
 #' @import magick rsvg stringr
 #' @export
-plot_tree <- function(df, comparison, tree_dir, min_col, max_col, fscore_thr = 1.3, png=FALSE) {
+plot_tree <- function(df, comparison, tree_dir, min_col, max_col, fscore_col, kinstat_col, png=FALSE) {
  require(magick)
  require(rsvg)
  require(stringr)
 
  new_tree <- make_empty_tree()
- dfandlegend <- make_tree_data(df, min_col = min_col, max_col = max_col, fscore_thr = fscore_thr)
+ dfandlegend <- make_tree_data(df, min_col = min_col, max_col = max_col, fscore_col = fscore_col, kinstat_col = kinstat_col)
  new_tree$dataframe <- dfandlegend[[1]]
  new_tree$legend <- dfandlegend[[2]]
 

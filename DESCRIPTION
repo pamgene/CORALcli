@@ -1,7 +1,7 @@
 Package: CORALcli
 Type: Package
 Title: Build Coral Trees from R
-Version: 0.2.1.
+Version: 0.2.2
 Author: https://github.com/dphansti/CORAL
 Maintainer: The package maintainer <dschuller@pamgene.com>
 Description: Uses PamGene kinase data to make coral trees. 
